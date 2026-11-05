@@ -93,18 +93,18 @@ public final class TradeDraws {
     }
 
     private static MerchantOffers draw(TradeSet set, RegistryAccess registries, RandomSource random, Entity villager) {
-        ContextMap params = ContextMap.builder()
-                .set(LootContextParams.ORIGIN, villager.position())
-                .set(LootContextParams.THIS_ENTITY, villager)
-                .set(LootContextParams.ADDITIONAL_COST_COMPONENT_ALLOWED, Unit.INSTANCE)
-                .buildAndValidate(LootContextParamSets.VILLAGER_TRADE);
+        ContextMap params = new ContextMap.Builder()
+                .withParameter(LootContextParams.ORIGIN, villager.position())
+                .withParameter(LootContextParams.THIS_ENTITY, villager)
+                .withParameter(LootContextParams.ADDITIONAL_COST_COMPONENT_ALLOWED, Unit.INSTANCE)
+                .create(LootContextParamSets.VILLAGER_TRADE);
         LootContext context = LootContextInvoker.seedengine$create(new LootParams(null, params, Map.of(), 0), random, registries);
         MerchantOffers offers = new MerchantOffers();
         int count = set.calculateNumberOfTrades(context);
         if (set.allowDuplicates()) {
-            AbstractVillagerInvoker.seedengine$addOffers(context, offers, set.trades(), count);
+            AbstractVillagerInvoker.seedengine$addOffers(context, offers, set.getTrades(), count);
         } else {
-            AbstractVillagerInvoker.seedengine$addOffersWithoutDuplicates(context, offers, set.trades(), count);
+            AbstractVillagerInvoker.seedengine$addOffersWithoutDuplicates(context, offers, set.getTrades(), count);
         }
         return offers;
     }

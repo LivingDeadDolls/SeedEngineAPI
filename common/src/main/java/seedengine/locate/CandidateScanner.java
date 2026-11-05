@@ -8,7 +8,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
-import net.minecraft.world.level.levelgen.structure.placement.DimensionOriginStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import seedengine.worldgen.WorldgenContext;
@@ -34,9 +33,6 @@ public final class CandidateScanner {
                 for (ChunkPos pos : state.getRingPositionsFor(rings)) {
                     addIfStarts(state, set, pos.x(), pos.z(), minX, minZ, maxX, maxZ, found);
                 }
-            } else if (placement instanceof DimensionOriginStructurePlacement) {
-                ChunkPos origin = state.getDimensionOrigin();
-                addIfStarts(state, set, origin.x(), origin.z(), minX, minZ, maxX, maxZ, found);
             } else {
                 // A kind of placement this does not know (from a mod): every chunk of the area is asked.
                 // Counted in long: an area reaching the end of the int range still ends.

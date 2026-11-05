@@ -34,7 +34,6 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -81,8 +80,8 @@ public final class VanillaWorldgen {
         ChunkGenerator generator = stem.generator();
         // Same as ChunkMap: the noise settings of a noise generator, or a flat stand-in for anything else.
         RandomState randomState = generator instanceof NoiseBasedChunkGenerator noise
-                ? RandomState.create(registries.lookupOrThrow(Registries.NOISE), seed, noise.generatorSettings().value())
-                : RandomState.create(registries.lookupOrThrow(Registries.NOISE), seed, false, Blocks.STONE.defaultBlockState(), 63, NoiseRouterData.none());
+                ? RandomState.create(noise.generatorSettings().value(), registries.lookupOrThrow(Registries.NOISE), seed)
+                : RandomState.create(net.minecraft.world.level.levelgen.NoiseGeneratorSettings.dummy(), registries.lookupOrThrow(Registries.NOISE), seed);
         ChunkGeneratorStructureState structureState = ServerSeedStructures.apply(
                 generator.createState(registries.lookupOrThrow(Registries.STRUCTURE_SET), randomState, seed), registries, seeds);
         // The rings of strongholds and the placements by structure, which the state otherwise works out on first use,
@@ -140,9 +139,9 @@ public final class VanillaWorldgen {
         LayeredRegistryAccess<RegistryLayer> layers = RegistryLayer.createRegistryAccess();
         List<Registry.PendingTags<?>> staticTags = TagLoader.loadTagsForExistingRegistries(resources, layers.getLayer(RegistryLayer.STATIC));
         bindDataOnlyTags(resources, layers.getLayer(RegistryLayer.STATIC), staticTags);
-        List<HolderLookup.RegistryLookup<?>> worldContext = TagLoader.buildUpdatedLookups(layers.getAccessForLoading(RegistryLayer.WORLD), staticTags);
-        RegistryAccess.Frozen world = RegistryDataLoader.load(resources, worldContext, RegistryDataLoader.WORLD_REGISTRIES, Runnable::run).join();
-        RegistryAccess.Frozen registries = layers.replaceFrom(RegistryLayer.WORLD, world).compositeAccess();
+        List<HolderLookup.RegistryLookup<?>> worldContext = TagLoader.buildUpdatedLookups(layers.getAccessForLoading(RegistryLayer.WORLDGEN), staticTags);
+        RegistryAccess.Frozen world = RegistryDataLoader.load(resources, worldContext, RegistryDataLoader.WORLDGEN_REGISTRIES, Runnable::run).join();
+        RegistryAccess.Frozen registries = layers.replaceFrom(RegistryLayer.WORLDGEN, world).compositeAccess();
         HolderGetter<Block> blocks = registries.lookupOrThrow(Registries.BLOCK);
         LevelStorageSource.LevelStorageAccess storage = templateStorage();
         StructureTemplateManager templates = new StructureTemplateManager(resources, storage, DataFixers.getDataFixer(), blocks);

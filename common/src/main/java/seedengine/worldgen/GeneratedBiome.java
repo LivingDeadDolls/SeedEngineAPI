@@ -9,9 +9,6 @@ import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.BiomeResolver;
-import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 
 /** The biome a generator puts at a block, in one place because the lookup differs between Minecraft versions. */
 public final class GeneratedBiome {
@@ -24,25 +21,20 @@ public final class GeneratedBiome {
     }
 
     public static Holder<Biome> at(WorldgenContext context, int x, int y, int z) {
-        Climate.Sampler sampler = context.randomState().createClimateSampler(SamplerContext.builder().build());
-        int quartX = QuartPos.fromBlock(x);
-        int quartY = QuartPos.fromBlock(y);
-        int quartZ = QuartPos.fromBlock(z);
-        return context.generator().getBiomeSource().createResolverForChunk(sampler, quartX, quartY, quartZ, 1, 1, 1)
-                .getNoiseBiome(quartX, quartY, quartZ);
+        return context.generator().getBiomeSource().getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(y), QuartPos.fromBlock(z),
+                context.randomState().sampler());
     }
 
-    /** A sampler for many lookups, made as {@code /locate biome} makes its own (with the climate's caches): one thread only. */
+    /** A sampler for many lookups, with the climate sampler {@code /locate biome} uses: one thread only. */
     public static Sampler sampler(WorldgenContext context) {
-        BiomeResolver resolver = context.generator().getBiomeSource().createCachingResolver(context.randomState());
-        return (x, y, z) -> resolver.getNoiseBiome(QuartPos.fromBlock(x), QuartPos.fromBlock(y), QuartPos.fromBlock(z));
+        return (x, y, z) -> at(context, x, y, z);
     }
 
     /** The nearest biome allowed and where, by the game's own search for {@code /locate biome}; null if none. */
     public static Pair<BlockPos, Holder<Biome>> closest(WorldgenContext context, BlockPos origin, int radius, int horizontalStep,
                                                         int verticalStep, Predicate<Holder<Biome>> allowed) {
-        return context.generator().getBiomeSource().findClosestBiome3d(origin, radius, horizontalStep, verticalStep, allowed, context.randomState(),
-                heightOnly(context.height()));
+        return context.generator().getBiomeSource().findClosestBiome3d(origin, radius, horizontalStep, verticalStep, allowed,
+                context.randomState().sampler(), heightOnly(context.height()));
     }
 
     /** A level for the search, which only reads the dimension's height from it (the heights it samples between). */

@@ -58,7 +58,7 @@ public record WorldgenContext(
     public static WorldgenContext of(ServerLevel level) {
         ServerChunkCache chunks = level.getChunkSource();
         return new WorldgenContext(level.dimension(), level.getSeed(), level.registryAccess(), chunks.getGenerator(),
-                chunks.randomState(), chunks.getGeneratorState(), level.getStructureTemplateManager(),
+                chunks.randomState(), chunks.getGeneratorState(), level.getStructureManager(),
                 LevelHeightAccessor.create(level.getMinY(), level.getHeight()), level.environmentAttributes(),
                 level.getServer().getWorldGenSettings().options().generateStructures(), "integrated server");
     }

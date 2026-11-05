@@ -6,10 +6,8 @@ import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.levelgen.densityfunction.SamplerContext;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -32,9 +30,8 @@ public final class StructureEvaluator {
         StructureSet set = candidate.set().value();
         List<StructureSet.StructureSelectionEntry> structures = set.structures();
         ChunkPos chunk = candidate.chunk();
-        Climate.Sampler climate = context.randomState().createClimateSampler(SamplerContext.builder().enableCaches().build());
         if (structures.size() == 1) {
-            return tryGenerate(context, candidate, structures.get(0), climate);
+            return tryGenerate(context, candidate, structures.get(0));
         }
         List<StructureSet.StructureSelectionEntry> options = new ArrayList<>(structures);
         WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
@@ -52,7 +49,7 @@ public final class StructureEvaluator {
                 index++;
             }
             StructureSet.StructureSelectionEntry selected = options.get(index);
-            Optional<Located> located = tryGenerate(context, candidate, selected, climate);
+            Optional<Located> located = tryGenerate(context, candidate, selected);
             if (located.isPresent()) return located;
             options.remove(index);
             total -= selected.weight();
@@ -63,18 +60,16 @@ public final class StructureEvaluator {
     /** The start of a structure found before, generated again: one of its own, not shared with the one kept. */
     public static StructureStart generateAgain(WorldgenContext context, Located located) {
         Holder<Structure> holder = located.structure();
-        Climate.Sampler climate = context.randomState().createClimateSampler(SamplerContext.builder().enableCaches().build());
         return holder.value().generate(holder, context.dimension(), context.registries(), context.generator(),
-                context.generator().getBiomeSource(), climate, context.randomState(), context.templates(),
+                context.generator().getBiomeSource(), context.randomState(), context.templates(),
                 context.structureState().getLevelSeed(), located.chunk(), 0, context.height(), holder.value().biomes()::contains);
     }
 
-    private static Optional<Located> tryGenerate(WorldgenContext context, Candidate candidate, StructureSet.StructureSelectionEntry selected,
-                                                 Climate.Sampler climate) {
+    private static Optional<Located> tryGenerate(WorldgenContext context, Candidate candidate, StructureSet.StructureSelectionEntry selected) {
         Holder<Structure> holder = selected.structure();
         Structure structure = holder.value();
         StructureStart start = structure.generate(holder, context.dimension(), context.registries(), context.generator(),
-                context.generator().getBiomeSource(), climate, context.randomState(), context.templates(),
+                context.generator().getBiomeSource(), context.randomState(), context.templates(),
                 context.structureState().getLevelSeed(), candidate.chunk(), 0, context.height(), structure.biomes()::contains);
         if (!start.isValid()) return Optional.empty();
         List<BoundingBox> pieces = new ArrayList<>();

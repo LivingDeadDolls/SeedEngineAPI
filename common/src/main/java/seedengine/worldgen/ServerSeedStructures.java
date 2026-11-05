@@ -11,7 +11,7 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.placement.AbstractSpreadingStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
 import seedengine.api.ServerSeeds;
 import seedengine.mixin.ChunkGeneratorStructureStateAccessor;
@@ -54,7 +54,7 @@ final class ServerSeedStructures {
         ChunkGeneratorStructureStateAccessor parts = (ChunkGeneratorStructureStateAccessor) state;
         long rings = seeds.strongholdSeed().orElse(parts.seedengine$concentricRingsSeed());
         return ChunkGeneratorStructureStateAccessor.seedengine$create(state.randomState(), parts.seedengine$biomeSource(), state.getLevelSeed(),
-                state.getDimensionOrigin(), rings, sets);
+                rings, sets);
     }
 
     /** A placement that spreads with another salt, or draws its frequency with another salt (as Spigot does for mineshafts and buried treasures). */
@@ -62,7 +62,7 @@ final class ServerSeedStructures {
         private final Integer frequencySalt;
 
         Salted(RandomSpreadStructurePlacement spread, int salt, Integer frequencySalt) {
-            super(spread.locateOffset(), ((SpreadingPlacementAccessor) spread).seedengine$frequencyReductionMethod(),
+            super(((SpreadingPlacementAccessor) spread).seedengine$locateOffset(), ((SpreadingPlacementAccessor) spread).seedengine$frequencyReductionMethod(),
                     ((SpreadingPlacementAccessor) spread).seedengine$frequency(), salt, ((SpreadingPlacementAccessor) spread).seedengine$exclusionZone(),
                     spread.spacing(), spread.separation(), spread.spreadType());
             this.frequencySalt = frequencySalt;
@@ -71,14 +71,14 @@ final class ServerSeedStructures {
         @Override
         public boolean applyAdditionalChunkRestrictions(int sourceX, int sourceZ, long levelSeed) {
             if (frequencySalt == null || frequency() >= 1.0F) return super.applyAdditionalChunkRestrictions(sourceX, sourceZ, levelSeed);
-            AbstractSpreadingStructurePlacement.FrequencyReductionMethod method = frequencyReductionMethod();
-            if (method != AbstractSpreadingStructurePlacement.FrequencyReductionMethod.LEGACY_TYPE_2
-                    && method != AbstractSpreadingStructurePlacement.FrequencyReductionMethod.LEGACY_TYPE_3) {
+            StructurePlacement.FrequencyReductionMethod method = frequencyReductionMethod();
+            if (method != StructurePlacement.FrequencyReductionMethod.LEGACY_TYPE_2
+                    && method != StructurePlacement.FrequencyReductionMethod.LEGACY_TYPE_3) {
                 return super.applyAdditionalChunkRestrictions(sourceX, sourceZ, levelSeed);
             }
             WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
             random.setLargeFeatureWithSalt(levelSeed, sourceX, sourceZ, frequencySalt);
-            return method == AbstractSpreadingStructurePlacement.FrequencyReductionMethod.LEGACY_TYPE_3
+            return method == StructurePlacement.FrequencyReductionMethod.LEGACY_TYPE_3
                     ? random.nextDouble() < frequency()
                     : random.nextFloat() < frequency();
         }

@@ -32,7 +32,7 @@ abstract class WorldlessMarkerMobsMixin {
                                         @Local(argsOnly = true) BlockPos position, @Local(argsOnly = true) ServerLevelAccessor accessor) {
         Entity entity = original.call(type, level, reason);
         if (entity == null && level == null) {
-            boolean drowned = type == net.minecraft.world.entity.EntityTypes.DROWNED;
+            boolean drowned = type == EntityType.DROWNED;
             accessor.setBlock(position, drowned && position.getY() <= accessor.getSeaLevel() ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState(), 2);
         }
         return entity;

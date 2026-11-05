@@ -18,7 +18,7 @@ abstract class StructurePieceMixin {
      * stand-in level that has no chunks: it is told instead, and fixes the shapes once the structure is placed.
      */
     @WrapOperation(method = "placeBlock", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/level/chunk/ChunkAccess;markPosForPostProcessing(Lnet/minecraft/core/BlockPos;)V"))
+            target = "Lnet/minecraft/world/level/chunk/ChunkAccess;markPosForPostprocessing(Lnet/minecraft/core/BlockPos;)V"))
     private void seedengine$ghostChunk(ChunkAccess chunk, BlockPos pos, Operation<Void> original, @Local(argsOnly = true) WorldGenLevel level) {
         if (chunk == null && GhostCapture.isGhost(level)) {
             GhostCapture.markForPostProcessing(level, pos);

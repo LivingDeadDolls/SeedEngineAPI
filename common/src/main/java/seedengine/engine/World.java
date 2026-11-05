@@ -147,7 +147,7 @@ public final class World {
                 List<BoundingBox> boxes = pieces ? placed.pieces().stream().map(World::copy).toList() : List.of(copy(placed.box()));
                 List<StructureSpawnArea.Mob> mobs = override.spawns().unwrap().stream()
                         .map(mob -> new StructureSpawnArea.Mob(BuiltInRegistries.ENTITY_TYPE.getKey(mob.value().type()), mob.weight(),
-                                mob.value().count().minInclusive(), mob.value().count().maxInclusive()))
+                                mob.value().minCount(), mob.value().maxCount()))
                         .toList();
                 areas.add(new StructureSpawnArea(structure, category, pieces, boxes, mobs));
             }
