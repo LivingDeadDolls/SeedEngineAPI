@@ -13,7 +13,7 @@ import seedengine.worldgen.ChunkSteps;
 @Mixin(NoiseBasedChunkGenerator.class)
 abstract class CallerThreadTerrainMixin {
     /** As {@link CallerThreadBiomesMixin}, for the terrain's noise of this mod's chunks. */
-    @WrapOperation(method = "buildTerrain", at = @At(value = "INVOKE",
+    @WrapOperation(method = "fillFromNoise", at = @At(value = "INVOKE",
             target = "Ljava/util/concurrent/CompletableFuture;supplyAsync(Ljava/util/function/Supplier;Ljava/util/concurrent/Executor;)Ljava/util/concurrent/CompletableFuture;"))
     private <T> CompletableFuture<T> seedengine$onCaller(Supplier<T> work, Executor executor, Operation<CompletableFuture<T>> original) {
         return ChunkSteps.onCallerThread() ? CompletableFuture.completedFuture(work.get()) : original.call(work, executor);

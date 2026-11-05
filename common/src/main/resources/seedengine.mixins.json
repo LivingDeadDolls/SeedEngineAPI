@@ -8,7 +8,6 @@
     "StructurePieceMixin",
     "StructureTemplatePaletteMixin",
     "ChunkGeneratorAccessor",
-    "NoiseBasedChunkGeneratorMixin",
     "AbstractVillagerInvoker",
     "LootContextInvoker",
     "RandomSequencesInvoker",
