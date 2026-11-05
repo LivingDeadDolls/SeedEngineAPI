@@ -1,0 +1,91 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Xander'
+                url = uri('https://maven.isxander.dev/releases')
+            }
+        }
+        filter { includeGroup('dev.isxander') }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'TerraformersMC'
+                url = uri('https://maven.terraformersmc.com/releases')
+            }
+        }
+        filter { includeGroup('com.terraformersmc') }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Quilt'
+                url = uri('https://maven.quiltmc.org/repository/release')
+            }
+        }
+        // YACL's JSON5 parser
+        filter { includeGroupAndSubgroups('org.quiltmc') }
+    }
+}
+
+base {
+    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+}
+
+jar {
+    // Read at configuration time: the configuration cache keeps no project properties for the closure to look up later.
+    var modId = mod_id
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${modId}" }
+    }
+
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_name,
+                'Specification-Vendor'  : mod_author,
+                'Specification-Version' : project.jar.archiveVersion,
+                'Implementation-Title'  : project.name,
+                'Implementation-Version': project.jar.archiveVersion,
+                'Implementation-Vendor' : mod_author,
+                'Built-On-Minecraft'    : minecraft_version
+        ])
+    }
+}
+
+processResources {
+    var expandProps = [
+            'version'                      : version,
+            'group'                        : project.group, //Else we target the task's group.
+            'minecraft_version'            : minecraft_version,
+            'fabric_minecraft_dependency'  : fabric_minecraft_dependency,
+            'fabric_version'               : fabric_version,
+            'fabric_loader_version'        : fabric_loader_version,
+            'mod_name'                     : mod_name,
+            'mod_author'                   : mod_author,
+            'mod_id'                       : mod_id,
+            'license'                      : license,
+            'description'                  : project.description,
+            'credits'                      : credits,
+            'java_version'                 : java_version
+    ]
+
+    var jsonExpandProps = expandProps.collectEntries {
+        key, value -> [(key): value instanceof String ? value.replace('\n', '\\\\n') : value]
+    }
+
+    filesMatching(['pack.mcmeta', 'fabric.mod.json', '*.mixins.json']) {
+        expand jsonExpandProps
+    }
+
+    inputs.properties(expandProps)
+}
+

@@ -1,0 +1,12 @@
+{
+  "seedengine.command.setseed.current": "使っているシード: %s（%s）",
+  "seedengine.command.setseed.unknown": "このワールドのシードが分かりません。/setseed <シード> で入れるか、サーバーが許していれば /seed を実行してください。",
+  "seedengine.command.setseed.set": "このサーバーのシードを %s にしました。",
+  "seedengine.command.setseed.set_unused": "このサーバーのシードとして %s を覚えましたが、ここでは%s（%s）を使います。",
+  "seedengine.command.setseed.invalid": "シードとして読めません: %s",
+  "seedengine.command.setseed.cleared": "このサーバーに入れたシードを消しました。",
+  "seedengine.command.setseed.nothing_to_clear": "このサーバーにはシードを入れていません。",
+  "seedengine.seed_source.integrated_server": "このワールドのシード",
+  "seedengine.seed_source.manual": "/setseed で入れたもの",
+  "seedengine.seed_source.seed_command": "/seed の結果"
+}

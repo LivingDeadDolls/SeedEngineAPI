@@ -1,0 +1,77 @@
+plugins {
+    id 'multiloader-loader'
+    id 'net.fabricmc.fabric-loom'
+    id 'maven-publish'
+}
+dependencies {
+    minecraft("com.mojang:minecraft:${minecraft_version}")
+    implementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
+}
+
+// ./gradlew publishToMavenLocal puts the mod jar into the local Maven repository
+// (io.github.livingdeaddolls:seedengine-fabric:<version>+<minecraft_version>), with its sources, for other mods to build
+// against and to nest in their own jar (Loom's include). Only the jars and a POM without dependencies: the mods using it
+// have Minecraft and Fabric already, and a nested jar must not bring other mods along. No Gradle module metadata
+// either: it names this build's loader variant, which a common project depending on the jar would not match.
+java {
+    withSourcesJar()
+}
+tasks.named('sourcesJar', Jar) {
+    // The common code is compiled into this jar, so its sources go into the sources jar too.
+    dependsOn(configurations.commonJava)
+    from(configurations.commonJava)
+}
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
+}
+publishing {
+    publications {
+        create('mod', MavenPublication) {
+            artifactId = "${mod_id}-fabric"
+            version = "${project.version}+${minecraft_version}"
+            artifact(tasks.named('jar'))
+            artifact(tasks.named('sourcesJar'))
+        }
+    }
+}
+
+loom {
+    def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
+    }
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('runs/client')
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('runs/server')
+        }
+    }
+}
+
+// Implement mcgradleconventions loader attribute
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'includeInternal', 'modCompileClasspath'].each { variant ->
+    configurations.named(variant) {
+        attributes {
+            attribute(loaderAttribute, 'fabric')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, 'fabric')
+            }
+        }
+    }
+}

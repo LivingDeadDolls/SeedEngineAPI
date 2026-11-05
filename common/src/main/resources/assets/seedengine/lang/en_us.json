@@ -1,0 +1,12 @@
+{
+  "seedengine.command.setseed.current": "Seed in use: %s (%s)",
+  "seedengine.command.setseed.unknown": "The seed of this world is not known. Enter it with /setseed <seed>, or run /seed if the server lets you.",
+  "seedengine.command.setseed.set": "Seed set to %s for this server.",
+  "seedengine.command.setseed.set_unused": "Seed %s saved for this server, but %s (%s) is used here.",
+  "seedengine.command.setseed.invalid": "Not a seed: %s",
+  "seedengine.command.setseed.cleared": "The seed you entered for this server is cleared.",
+  "seedengine.command.setseed.nothing_to_clear": "No seed was entered for this server.",
+  "seedengine.seed_source.integrated_server": "this world's own seed",
+  "seedengine.seed_source.manual": "entered with /setseed",
+  "seedengine.seed_source.seed_command": "from /seed"
+}
